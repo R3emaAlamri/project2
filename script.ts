@@ -21,90 +21,105 @@ if (taskInput && addTaskButton && taskList && clearAllButton) {
 function addTask() {
     if (!taskInput || !taskList) return;
 
-    const taskText = taskInput.value.trim();
-    if (!taskText) return;
+    try {
+        const taskText = taskInput.value.trim();
+        if (!taskText) return;
 
-    const tasks = getTasks();
-    tasks.push({ text: taskText, completed: false });
-    saveTasks(tasks);
+        const tasks = getTasks();
+        tasks.push({ text: taskText, completed: false });
+        saveTasks(tasks);
 
-    renderTasks();
-    taskInput.value = "";
-}
-
-// إنشاء عنصر المهمة
-function createTaskElement({ text, completed }: { text: string; completed: boolean }) {
-    const li = document.createElement("li");
-    li.classList.toggle("completed", completed);
-
-    const span = document.createElement("span");
-    span.classList.add("task-text");
-    span.textContent = text;
-
-    const buttonsDiv = document.createElement("div");
-    buttonsDiv.classList.add("task-buttons");
-
-    const completeBtn = document.createElement("button");
-    completeBtn.classList.add("complete-btn");
-    completeBtn.textContent = "✔️";
-    completeBtn.addEventListener("click", () => completeTask(text));
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.classList.add("delete-btn");
-    deleteBtn.textContent = "❌";
-    deleteBtn.addEventListener("click", () => deleteTask(text));
-
-    buttonsDiv.appendChild(completeBtn);
-    buttonsDiv.appendChild(deleteBtn);
-    li.appendChild(span);
-    li.appendChild(buttonsDiv);
-
-    return li;
+        renderTasks();
+        taskInput.value = "";
+    } catch (error) {
+        console.error("حدث خطأ أثناء إضافة المهمة:", error);
+        alert("⚠️ حدث خطأ أثناء إضافة المهمة.");
+    }
 }
 
 // إتمام المهمة مع نافذة منبثقة
 function completeTask(taskText: string) {
-    const tasks = getTasks().map(task =>
-        task.text === taskText && !task.completed ? { ...task, completed: true } : task
-    );
-    saveTasks(tasks);
-    renderTasks();
+    try {
+        const tasks = getTasks().map(task =>
+            task.text === taskText && !task.completed ? { ...task, completed: true } : task
+        );
+        saveTasks(tasks);
+        renderTasks();
 
-    if (completionPopup) {
-        completionPopup.style.display = "block";
-        setTimeout(() => (completionPopup.style.display = "none"), 2000);
+        if (completionPopup) {
+            completionPopup.style.display = "block";
+            setTimeout(() => (completionPopup.style.display = "none"), 2000);
+        }
+    } catch (error) {
+        console.error("حدث خطأ أثناء إتمام المهمة:", error);
     }
 }
 
 // حذف المهمة
 function deleteTask(taskText: string) {
-    const tasks = getTasks().filter(task => task.text !== taskText);
-    saveTasks(tasks);
-    renderTasks();
+    try {
+        const tasks = getTasks().filter(task => task.text !== taskText);
+        saveTasks(tasks);
+        renderTasks();
+    } catch (error) {
+        console.error("حدث خطأ أثناء حذف المهمة:", error);
+    }
 }
 
 // تحميل المهام من LocalStorage
 function getTasks(): { text: string; completed: boolean }[] {
-    return JSON.parse(localStorage.getItem("tasks") || "[]");
+    try {
+        return JSON.parse(localStorage.getItem("tasks") || "[]");
+    } catch (error) {
+        console.error("تعذر قراءة المهام من LocalStorage:", error);
+        return [];
+    }
 }
 
 // حفظ المهام إلى LocalStorage
 function saveTasks(tasks: { text: string; completed: boolean }[]) {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    try {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    } catch (error) {
+        console.error("تعذر حفظ المهام في LocalStorage:", error);
+    }
 }
 
 // إعادة تحميل قائمة المهام
 function renderTasks() {
     if (!taskList) return;
 
-    taskList.innerHTML = "";
-    getTasks().forEach(task => taskList.appendChild(createTaskElement(task)));
+    try {
+        taskList.innerHTML = "";
+        getTasks().forEach(task => taskList.appendChild(createTaskElement(task)));
+    } catch (error) {
+        console.error("حدث خطأ أثناء عرض المهام:", error);
+    }
 }
 
 // تحميل المهام عند فتح الصفحة
 function loadTasks() {
-    renderTasks();
+    try {
+        renderTasks();
+    } catch (error) {
+        console.error("حدث خطأ أثناء تحميل المهام:", error);
+    }
 }
+
+// مسح جميع المهام
+function clearAllTasks() {
+    try {
+        localStorage.removeItem("tasks");
+        if (taskList) taskList.innerHTML = "";
+    } catch (error) {
+        console.error("حدث خطأ أثناء مسح جميع المهام:", error);
+        alert("⚠️ تعذر مسح جميع المهام.");
+    }
+}
+function createTaskElement(task: { text: string; completed: boolean; }): any {
+    throw new Error("Function not implemented.");
+}
+
 
 // مسح جميع المهام
 function clearAllTasks() {
